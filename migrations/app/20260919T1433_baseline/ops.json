@@ -1,0 +1,658 @@
+[
+  {
+    "id": "schema.public",
+    "label": "Create schema \"public\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "Create schema \"public\"",
+        "sql": "CREATE SCHEMA IF NOT EXISTS \"public\"",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "table.candidate",
+    "label": "Create table \"candidate\"",
+    "summary": "Creates table \"candidate\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "candidate"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"candidate\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"candidate\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"candidate\"",
+        "sql": "CREATE TABLE \"public\".\"candidate\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"description\" text,\n  \"electionId\" int4 NOT NULL,\n  \"firstName\" text NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"lastName\" text NOT NULL,\n  \"photoUrl\" text,\n  \"specialty\" text,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"candidate\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"candidate\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.election",
+    "label": "Create table \"election\"",
+    "summary": "Creates table \"election\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "election"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"election\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"election\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"election\"",
+        "sql": "CREATE TABLE \"public\".\"election\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"description\" text,\n  \"endsAt\" timestamptz NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"isActive\" bool DEFAULT false NOT NULL,\n  \"startsAt\" timestamptz NOT NULL,\n  \"title\" text NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  \"winnerPublished\" bool DEFAULT false NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"election\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"election\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.sponsor",
+    "label": "Create table \"sponsor\"",
+    "summary": "Creates table \"sponsor\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "sponsor"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"sponsor\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"sponsor\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"sponsor\"",
+        "sql": "CREATE TABLE \"public\".\"sponsor\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"electionId\" int4 NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"logoUrl\" text,\n  \"name\" text NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  \"websiteUrl\" text,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"sponsor\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"sponsor\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.verificationCode",
+    "label": "Create table \"verificationCode\"",
+    "summary": "Creates table \"verificationCode\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "verificationCode"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"verificationCode\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"verificationCode\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"verificationCode\"",
+        "sql": "CREATE TABLE \"public\".\"verificationCode\" (\n  \"attempts\" int4 DEFAULT 0 NOT NULL,\n  \"codeHash\" text NOT NULL,\n  \"consumedAt\" timestamptz,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"email\" text NOT NULL,\n  \"expiresAt\" timestamptz NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"verificationCode\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"verificationCode\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.vote",
+    "label": "Create table \"vote\"",
+    "summary": "Creates table \"vote\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "vote"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"vote\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"vote\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"vote\"",
+        "sql": "CREATE TABLE \"public\".\"vote\" (\n  \"candidateId\" int4 NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"electionId\" int4 NOT NULL,\n  \"email\" text NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"vote\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"vote\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.vote.vote_electionId_email_key",
+    "label": "Add unique constraint on \"vote\" (electionId, email)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "vote_electionId_email_key",
+        "table": "vote"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"vote_electionId_email_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "vote_electionId_email_key",
+          "public",
+          "\"public\".\"vote\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"vote_electionId_email_key\"",
+        "sql": "ALTER TABLE \"public\".\"vote\" ADD CONSTRAINT \"vote_electionId_email_key\" UNIQUE (\"electionId\", \"email\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"vote_electionId_email_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "vote_electionId_email_key",
+          "public",
+          "\"public\".\"vote\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.candidate.candidate_electionId_idx_b4244a46",
+    "label": "Create index \"candidate_electionId_idx_b4244a46\" on \"candidate\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "candidate_electionId_idx_b4244a46",
+        "table": "candidate"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"candidate_electionId_idx_b4244a46\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"candidate_electionId_idx_b4244a46\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"candidate_electionId_idx_b4244a46\"",
+        "sql": "CREATE INDEX \"candidate_electionId_idx_b4244a46\" ON \"public\".\"candidate\" (\"electionId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"candidate_electionId_idx_b4244a46\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"candidate_electionId_idx_b4244a46\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.sponsor.sponsor_electionId_idx_b4244a46",
+    "label": "Create index \"sponsor_electionId_idx_b4244a46\" on \"sponsor\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "sponsor_electionId_idx_b4244a46",
+        "table": "sponsor"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"sponsor_electionId_idx_b4244a46\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"sponsor_electionId_idx_b4244a46\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"sponsor_electionId_idx_b4244a46\"",
+        "sql": "CREATE INDEX \"sponsor_electionId_idx_b4244a46\" ON \"public\".\"sponsor\" (\"electionId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"sponsor_electionId_idx_b4244a46\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"sponsor_electionId_idx_b4244a46\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.verificationCode.verificationCode_email_idx_46df9cad",
+    "label": "Create index \"verificationCode_email_idx_46df9cad\" on \"verificationCode\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "verificationCode_email_idx_46df9cad",
+        "table": "verificationCode"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"verificationCode_email_idx_46df9cad\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"verificationCode_email_idx_46df9cad\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"verificationCode_email_idx_46df9cad\"",
+        "sql": "CREATE INDEX \"verificationCode_email_idx_46df9cad\" ON \"public\".\"verificationCode\" (\"email\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"verificationCode_email_idx_46df9cad\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"verificationCode_email_idx_46df9cad\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.verificationCode.verificationCode_expiresAt_idx_6b6b8c10",
+    "label": "Create index \"verificationCode_expiresAt_idx_6b6b8c10\" on \"verificationCode\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "verificationCode_expiresAt_idx_6b6b8c10",
+        "table": "verificationCode"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"verificationCode_expiresAt_idx_6b6b8c10\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"verificationCode_expiresAt_idx_6b6b8c10\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"verificationCode_expiresAt_idx_6b6b8c10\"",
+        "sql": "CREATE INDEX \"verificationCode_expiresAt_idx_6b6b8c10\" ON \"public\".\"verificationCode\" (\"expiresAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"verificationCode_expiresAt_idx_6b6b8c10\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"verificationCode_expiresAt_idx_6b6b8c10\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.vote.vote_candidateId_idx_462b5869",
+    "label": "Create index \"vote_candidateId_idx_462b5869\" on \"vote\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "vote_candidateId_idx_462b5869",
+        "table": "vote"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"vote_candidateId_idx_462b5869\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"vote_candidateId_idx_462b5869\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"vote_candidateId_idx_462b5869\"",
+        "sql": "CREATE INDEX \"vote_candidateId_idx_462b5869\" ON \"public\".\"vote\" (\"candidateId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"vote_candidateId_idx_462b5869\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"vote_candidateId_idx_462b5869\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.vote.vote_electionId_idx_b4244a46",
+    "label": "Create index \"vote_electionId_idx_b4244a46\" on \"vote\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "vote_electionId_idx_b4244a46",
+        "table": "vote"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"vote_electionId_idx_b4244a46\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"vote_electionId_idx_b4244a46\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"vote_electionId_idx_b4244a46\"",
+        "sql": "CREATE INDEX \"vote_electionId_idx_b4244a46\" ON \"public\".\"vote\" (\"electionId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"vote_electionId_idx_b4244a46\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"vote_electionId_idx_b4244a46\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.candidate.candidate_electionId_fkey",
+    "label": "Add foreign key \"candidate_electionId_fkey\" on \"candidate\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "candidate_electionId_fkey",
+        "table": "candidate"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"candidate_electionId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "candidate_electionId_fkey",
+          "public",
+          "\"public\".\"candidate\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"candidate_electionId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"candidate\"\nADD CONSTRAINT \"candidate_electionId_fkey\"\nFOREIGN KEY (\"electionId\")\nREFERENCES \"public\".\"election\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"candidate_electionId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "candidate_electionId_fkey",
+          "public",
+          "\"public\".\"candidate\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.sponsor.sponsor_electionId_fkey",
+    "label": "Add foreign key \"sponsor_electionId_fkey\" on \"sponsor\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "sponsor_electionId_fkey",
+        "table": "sponsor"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"sponsor_electionId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "sponsor_electionId_fkey",
+          "public",
+          "\"public\".\"sponsor\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"sponsor_electionId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"sponsor\"\nADD CONSTRAINT \"sponsor_electionId_fkey\"\nFOREIGN KEY (\"electionId\")\nREFERENCES \"public\".\"election\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"sponsor_electionId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "sponsor_electionId_fkey",
+          "public",
+          "\"public\".\"sponsor\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.vote.vote_electionId_fkey",
+    "label": "Add foreign key \"vote_electionId_fkey\" on \"vote\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "vote_electionId_fkey",
+        "table": "vote"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"vote_electionId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "vote_electionId_fkey",
+          "public",
+          "\"public\".\"vote\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"vote_electionId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"vote\"\nADD CONSTRAINT \"vote_electionId_fkey\"\nFOREIGN KEY (\"electionId\")\nREFERENCES \"public\".\"election\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"vote_electionId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "vote_electionId_fkey",
+          "public",
+          "\"public\".\"vote\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.vote.vote_candidateId_fkey",
+    "label": "Add foreign key \"vote_candidateId_fkey\" on \"vote\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "vote_candidateId_fkey",
+        "table": "vote"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"vote_candidateId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "vote_candidateId_fkey",
+          "public",
+          "\"public\".\"vote\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"vote_candidateId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"vote\"\nADD CONSTRAINT \"vote_candidateId_fkey\"\nFOREIGN KEY (\"candidateId\")\nREFERENCES \"public\".\"candidate\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"vote_candidateId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "vote_candidateId_fkey",
+          "public",
+          "\"public\".\"vote\""
+        ]
+      }
+    ]
+  }
+]

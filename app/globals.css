@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+.countdown{display:inline-block;margin-top:18px;padding:10px 16px;border-radius:999px;background:#e0f3ea;color:#175e51;font-size:14px}.countdown strong{margin-left:4px;color:#123e39}
+.queue-screen{min-height:75vh;display:grid;place-items:center;padding:28px}.queue-card{max-width:520px;text-align:center;background:#fff;border:1px solid #dceae5;border-radius:28px;padding:48px 30px;box-shadow:0 18px 50px #174d4315}.queue-card h1{font-size:32px;color:#123e39;margin:10px 0}.queue-card p{color:#607d74;line-height:1.8}.queue-card strong{display:block;font-size:64px;color:#124f47;margin:18px}.queue-card small{display:block;color:#78978d}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.site-shell{background:linear-gradient(180deg,#f4fbf8 0%,#fbfcfb 44%,#f5f8f7 100%);min-height:100vh}.site-header{background:#124f47;color:white;box-shadow:0 5px 22px #124f4722}.site-header-inner{max-width:1152px;margin:auto;padding:18px 24px;display:flex;align-items:center;justify-content:space-between}.brand-mark{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.08em}.brand-mark>span{width:38px;height:38px;border-radius:12px;background:#d9f28c;color:#124f47;display:grid;place-items:center;font-size:23px}.brand-mark small{display:block;color:#b8d6cd;font-size:11px;letter-spacing:0;margin-top:2px;font-weight:500}.header-pill{border:1px solid #8ebbb0;border-radius:999px;padding:8px 14px;font-size:12px;color:#e7f6f1}.intro{padding:16px 0 8px}.intro h1{color:#123e39;letter-spacing:-.03em}.intro p{font-size:17px}.eyebrow{display:inline-block;text-transform:uppercase;letter-spacing:.16em;color:#2b8172;font-size:12px;font-weight:800;margin-bottom:10px}.doctor-card{border:1px solid #dceae5;box-shadow:0 10px 30px #174d4310;transition:transform .2s ease,box-shadow .2s ease}.doctor-card:hover{transform:translateY(-5px);box-shadow:0 16px 34px #174d4324}.doctor-photo{background:linear-gradient(135deg,#d9f1e8,#eef8f5);color:#1a6b5e;font-size:44px;font-weight:800;letter-spacing:.08em}.doctor-card button{background:#124f47!important}.doctor-card button:hover{background:#0d3c36!important}@media(max-width:600px){.site-header-inner{padding:14px 18px}.header-pill{display:none}.intro h1{font-size:2rem}.intro p{font-size:15px}}

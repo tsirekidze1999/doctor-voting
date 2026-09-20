@@ -1,0 +1,149 @@
+// use prisma-next
+
+model AdminUser {
+  id Int @id @default(autoincrement())
+  username String @unique
+  name String
+  passwordHash String
+  role String @default("moderator")
+  permissions String @default("[]")
+  active Boolean @default(true)
+  createdAt TimestamptzString @default(now())
+}
+
+model AdminSession {
+  id Int @id @default(autoincrement())
+  userId Int
+  tokenHash String @unique
+  createdAt TimestamptzString @default(now())
+  lastSeenAt TimestamptzString @default(now())
+  expiresAt TimestamptzString
+  endedAt TimestamptzString?
+  @@index([userId])
+}
+
+model AdminAudit {
+  id Int @id @default(autoincrement())
+  userId Int
+  actorName String
+  action String
+  detail String
+  createdAt TimestamptzString @default(now())
+}
+
+model AdminApproval {
+  id Int @id @default(autoincrement())
+  userId Int
+  actorName String
+  electionId Int
+  action String
+  payload String
+  fingerprint String
+  status String @default("pending")
+  reviewerName String?
+  createdAt TimestamptzString @default(now())
+  reviewedAt TimestamptzString?
+}
+
+model AdminLoginAttempt {
+  id Int @id @default(autoincrement())
+  username String @unique
+  failures Int @default(0)
+  windowStart TimestamptzString @default(now())
+}
+
+model Election {
+  id              Int      @id @default(autoincrement())
+  title           String
+  description     String?
+  startsAt        TimestamptzString
+  endsAt          TimestamptzString
+  isActive        Boolean  @default(false)
+  winnerPublished Boolean  @default(false)
+  createdAt       TimestamptzString @default(now())
+  updatedAt       temporal.updatedAtString()
+
+  categories Category[]
+  candidates Candidate[]
+  votes      Vote[]
+  sponsors   Sponsor[]
+}
+
+model Category {
+  id         Int @id @default(autoincrement())
+  electionId Int
+  name       String
+  position   Int @default(0)
+  election Election @relation(fields: [electionId], references: [id])
+  candidates Candidate[]
+  votes Vote[]
+  @@unique([electionId, name])
+}
+
+model Candidate {
+  id          Int      @id @default(autoincrement())
+  electionId  Int
+  firstName   String
+  lastName    String
+  categoryId  Int?
+  category Category? @relation(fields: [categoryId], references: [id])
+  specialty   String?
+  description String?
+  photoUrl    String?
+  createdAt   TimestamptzString @default(now())
+  updatedAt   temporal.updatedAtString()
+
+  election Election @relation(fields: [electionId], references: [id])
+  votes    Vote[]
+
+  @@index([electionId])
+}
+
+model Vote {
+  id           Int      @id @default(autoincrement())
+  electionId   Int
+  categoryId   Int?
+  category Category? @relation(fields: [categoryId], references: [id])
+  candidateId  Int
+  email        String?
+  phone        String?
+  createdAt    TimestamptzString @default(now())
+
+  election  Election  @relation(fields: [electionId], references: [id])
+  candidate Candidate @relation(fields: [candidateId], references: [id])
+
+  @@unique([electionId, categoryId, email])
+  @@unique([electionId, categoryId, phone])
+  @@index([candidateId])
+  @@index([electionId])
+}
+
+model VerificationCode {
+  id         Int      @id @default(autoincrement())
+  email      String?
+  phone      String?
+  codeHash   String
+  expiresAt  TimestamptzString
+  attempts   Int      @default(0)
+  consumedAt TimestamptzString?
+  createdAt  TimestamptzString @default(now())
+
+  @@index([email])
+  @@index([phone])
+  @@index([expiresAt])
+}
+
+model Sponsor {
+  id          Int      @id @default(autoincrement())
+  electionId  Int
+  name        String
+  logoUrl     String?
+  websiteUrl  String?
+  createdAt   TimestamptzString @default(now())
+  updatedAt   temporal.updatedAtString()
+
+  election Election @relation(fields: [electionId], references: [id])
+
+  @@index([electionId])
+}
+

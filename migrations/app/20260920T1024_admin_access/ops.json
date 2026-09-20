@@ -1,0 +1,362 @@
+[
+  {
+    "id": "table.adminApproval",
+    "label": "Create table \"adminApproval\"",
+    "summary": "Creates table \"adminApproval\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "adminApproval"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"adminApproval\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"adminApproval\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"adminApproval\"",
+        "sql": "CREATE TABLE \"public\".\"adminApproval\" (\n  \"action\" text NOT NULL,\n  \"actorName\" text NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"electionId\" int4 NOT NULL,\n  \"fingerprint\" text NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"payload\" text NOT NULL,\n  \"reviewedAt\" timestamptz,\n  \"reviewerName\" text,\n  \"status\" text DEFAULT 'pending' NOT NULL,\n  \"userId\" int4 NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"adminApproval\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"adminApproval\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.adminAudit",
+    "label": "Create table \"adminAudit\"",
+    "summary": "Creates table \"adminAudit\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "adminAudit"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"adminAudit\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"adminAudit\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"adminAudit\"",
+        "sql": "CREATE TABLE \"public\".\"adminAudit\" (\n  \"action\" text NOT NULL,\n  \"actorName\" text NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"detail\" text NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"userId\" int4 NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"adminAudit\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"adminAudit\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.adminLoginAttempt",
+    "label": "Create table \"adminLoginAttempt\"",
+    "summary": "Creates table \"adminLoginAttempt\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "adminLoginAttempt"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"adminLoginAttempt\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"adminLoginAttempt\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"adminLoginAttempt\"",
+        "sql": "CREATE TABLE \"public\".\"adminLoginAttempt\" (\n  \"failures\" int4 DEFAULT 0 NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"username\" text NOT NULL,\n  \"windowStart\" timestamptz DEFAULT (now()) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"adminLoginAttempt\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"adminLoginAttempt\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.adminSession",
+    "label": "Create table \"adminSession\"",
+    "summary": "Creates table \"adminSession\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "adminSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"adminSession\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"adminSession\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"adminSession\"",
+        "sql": "CREATE TABLE \"public\".\"adminSession\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"endedAt\" timestamptz,\n  \"expiresAt\" timestamptz NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"lastSeenAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"tokenHash\" text NOT NULL,\n  \"userId\" int4 NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"adminSession\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"adminSession\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.adminUser",
+    "label": "Create table \"adminUser\"",
+    "summary": "Creates table \"adminUser\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "adminUser"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"adminUser\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"adminUser\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"adminUser\"",
+        "sql": "CREATE TABLE \"public\".\"adminUser\" (\n  \"active\" bool DEFAULT true NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"name\" text NOT NULL,\n  \"passwordHash\" text NOT NULL,\n  \"permissions\" text DEFAULT '[]' NOT NULL,\n  \"role\" text DEFAULT 'moderator' NOT NULL,\n  \"username\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"adminUser\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"adminUser\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.adminLoginAttempt.adminLoginAttempt_username_key",
+    "label": "Add unique constraint on \"adminLoginAttempt\" (username)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "adminLoginAttempt_username_key",
+        "table": "adminLoginAttempt"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"adminLoginAttempt_username_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "adminLoginAttempt_username_key",
+          "public",
+          "\"public\".\"adminLoginAttempt\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"adminLoginAttempt_username_key\"",
+        "sql": "ALTER TABLE \"public\".\"adminLoginAttempt\" ADD CONSTRAINT \"adminLoginAttempt_username_key\" UNIQUE (\"username\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"adminLoginAttempt_username_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "adminLoginAttempt_username_key",
+          "public",
+          "\"public\".\"adminLoginAttempt\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.adminSession.adminSession_tokenHash_key",
+    "label": "Add unique constraint on \"adminSession\" (tokenHash)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "adminSession_tokenHash_key",
+        "table": "adminSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"adminSession_tokenHash_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "adminSession_tokenHash_key",
+          "public",
+          "\"public\".\"adminSession\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"adminSession_tokenHash_key\"",
+        "sql": "ALTER TABLE \"public\".\"adminSession\" ADD CONSTRAINT \"adminSession_tokenHash_key\" UNIQUE (\"tokenHash\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"adminSession_tokenHash_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "adminSession_tokenHash_key",
+          "public",
+          "\"public\".\"adminSession\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.adminUser.adminUser_username_key",
+    "label": "Add unique constraint on \"adminUser\" (username)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "adminUser_username_key",
+        "table": "adminUser"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"adminUser_username_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "adminUser_username_key",
+          "public",
+          "\"public\".\"adminUser\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"adminUser_username_key\"",
+        "sql": "ALTER TABLE \"public\".\"adminUser\" ADD CONSTRAINT \"adminUser_username_key\" UNIQUE (\"username\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"adminUser_username_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "adminUser_username_key",
+          "public",
+          "\"public\".\"adminUser\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.adminSession.adminSession_userId_idx_a489d58a",
+    "label": "Create index \"adminSession_userId_idx_a489d58a\" on \"adminSession\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "adminSession_userId_idx_a489d58a",
+        "table": "adminSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"adminSession_userId_idx_a489d58a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"adminSession_userId_idx_a489d58a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"adminSession_userId_idx_a489d58a\"",
+        "sql": "CREATE INDEX \"adminSession_userId_idx_a489d58a\" ON \"public\".\"adminSession\" (\"userId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"adminSession_userId_idx_a489d58a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"adminSession_userId_idx_a489d58a\""
+        ]
+      }
+    ]
+  }
+]
