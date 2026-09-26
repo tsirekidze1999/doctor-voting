@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { expectedOrigin } from "./request-origin";
 import { normalizePhone } from "./phone";
 import { db } from "./prisma/db";
 
@@ -8,7 +9,7 @@ export class VotingError extends Error {
 }
 export async function readVoteRequest(request: Request) {
   const origin = request.headers.get("origin");
-  if (origin && origin !== new URL(request.url).origin) throw new VotingError(403, "მოთხოვნა დაუშვებელია");
+  if (origin && origin !== expectedOrigin(request)) throw new VotingError(403, "მოთხოვნა დაუშვებელია");
   let body: Record<string, unknown>;
   try {
     const value = await request.json();

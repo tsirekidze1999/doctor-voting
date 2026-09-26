@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { expectedOrigin } from "./request-origin";
 import { NextResponse } from "next/server";
 import { db } from "./prisma/db";
 import { ALL_PERMISSIONS, type AdminIdentity } from "./admin-permissions";
@@ -32,7 +33,7 @@ export async function authenticate(request: Request, tx: Tx) {
   return { admin: identity(user), session };
 }
 export function sameOrigin(request: Request) {
-  if (request.headers.get("origin") !== new URL(request.url).origin) throw new AdminError(403, "მოთხოვნის წყარო დაუშვებელია");
+  if (request.headers.get("origin") !== expectedOrigin(request)) throw new AdminError(403, "მოთხოვნის წყარო დაუშვებელია");
 }
 export async function readBody(request: Request): Promise<Record<string, unknown>> {
   if (!request.headers.get("content-type")?.includes("application/json")) throw new AdminError(400, "საჭიროა JSON მოთხოვნა");
