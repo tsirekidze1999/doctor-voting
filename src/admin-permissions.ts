@@ -22,7 +22,7 @@ export const ACTION_LABELS: Record<string, string> = {
   "delete-election": "არჩევნების წაშლა", "add-category": "კატეგორიის დამატება",
   "update-category": "კატეგორიის რედაქტირება", "delete-category": "კატეგორიის წაშლა",
   "add-candidate": "ექიმის დამატება", "update-candidate": "ექიმის რედაქტირება",
-  "delete-candidate": "ექიმის წაშლა", login: "შესვლა", logout: "გასვლა",
+  "delete-candidate": "ექიმის წაშლა", "change-password": "პაროლის შეცვლა", login: "შესვლა", logout: "გასვლა",
   "save-user": "ადმინის / უფლებების შენახვა", request: "მოთხოვნის გაგზავნა",
   approve: "მოთხოვნის დადასტურება", reject: "მოთხოვნის უარყოფა",
 };

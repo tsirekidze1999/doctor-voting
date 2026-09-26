@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import SiteHeader from "./site-header";
 import { normalizePhone } from "@/src/phone";
 
@@ -138,19 +139,22 @@ export default function VotingPage({ resultsOnly = false }: { resultsOnly?: bool
   }
 
   return (
-    <main className="site-shell min-h-screen text-gray-900">
+    <main className={resultsOnly ? "site-shell awards-page min-h-screen" : "site-shell min-h-screen text-gray-900"}>
       <SiteHeader active={resultsOnly ? "winners" : "vote"} />
       {queue && !queue.allowed && <section className="queue-screen"><div className="queue-card"><span className="eyebrow">მაღალი დატვირთვა</span><h1>თქვენ რიგში ხართ</h1><p>საიტზე შესვლას მალე შეძლებთ. თქვენი რიგის ნომერია:</p><strong>#{queue.position}</strong><small>გვერდი ავტომატურად შემოწმდება ყოველ რამდენიმე წამში.</small></div></section>}
       {queue?.allowed !== false && <>
       <section className="max-w-6xl mx-auto px-6 py-12">
+        {resultsOnly ? <section className="awards-hero"><div className="awards-copy"><span className="awards-kicker">MEDFRIEND · MEDICAL CARE AWARD</span><h1>ზრუნვა იმსახურებს<br/><em>აღიარებას.</em></h1><p>ვაფასებთ ადამიანებს, რომლებიც სხვებზე ზრუნავენ. აქ შეხვდებით თქვენს მიერ არჩეულ ექიმებს — შედეგების ოფიციალური დადასტურების შემდეგ.</p><a href="#award-results" className="awards-link">გაეცანი შედეგებს <span aria-hidden="true">↓</span></a></div><figure className="award-portrait"><Image src="/medfriend-award.png" alt="MedFriend-ის ოქროსფერი ჯილდოს კონცეფცია შავ ფონზე" width={1312} height={1200} priority/><figcaption>ჯილდოს ვიზუალური კონცეფცია · ნიმუში</figcaption></figure></section> : <>
         <div className="intro text-center mb-10">
           <span className="eyebrow">ხალხის არჩევანი</span><h1 className="text-4xl font-bold">{election?.title || "წლის საუკეთესო ექიმი"}</h1>
           <p className="mt-4 text-gray-600">{election?.description || "აირჩიე შენი ფავორიტი ექიმი და მიეცი ხმა."}</p>
           {election?.isActive && <div className="countdown" role="status">დასრულებამდე დარჩა <strong>{formatRemaining(election.endsAt, now)}</strong></div>}
         </div>
+        </>}
+        <div id="award-results" />
         {loading && <p role="status" className="text-center">იტვირთება...</p>}
         {loadError && <div role="alert" className="text-center text-red-700"><p>{loadError}</p><button className="mt-3 underline" onClick={() => window.location.reload()}>ხელახლა ცდა</button></div>}
-        {!loading && !loadError && !election && <p className="text-center">ამჟამად აქტიური არჩევნები არ მიმდინარეობს.</p>}
+        {!resultsOnly && !loading && !loadError && !election && <p className="text-center">ამჟამად აქტიური არჩევნები არ მიმდინარეობს.</p>}
         {resultsOnly && !loading && !loadError && !election?.winnerPublished && <div className="award-empty"><span aria-hidden="true">✦</span><h2>გამარჯვებულების დრო ჯერ წინ არის</h2><p>დადასტურებული შედეგები გამოქვეყნების შემდეგ აქ გამოჩნდება.</p></div>}
         {election?.winnerPublished && <section className="award-section"><span className="award-star" aria-hidden="true">✦</span><h2>ვულოცავთ გამარჯვებულებს!</h2><p>მადლობა თითოეულ მონაწილეს — დადასტურებული შედეგები</p><div className="award-grid">{categories.map(category => { const group = doctors.filter(d => d.categoryId === category.id); const max = Math.max(0, ...group.map(d => d.votes ?? 0)); const leaders = max > 0 ? group.filter(d => (d.votes ?? 0) === max) : []; return <article className="award-card" key={category.id}><span aria-hidden="true">✧</span><h3>{category.name}</h3>{leaders.length ? leaders.map(d => <div key={d.id}><strong>{d.firstName} {d.lastName}</strong><p>{max} ხმა</p></div>) : <p>ამ კატეგორიაში ხმა არ დაფიქსირებულა</p>}</article>; })}</div></section>}
         {success && <div role="status" className="mb-8 rounded-xl bg-green-100 p-6 text-center text-green-900 text-xl font-bold">მადლობა, თქვენი ხმა მიღებულია. შეგიძლიათ სხვა კატეგორიაშიც მისცეთ ხმა.</div>}
