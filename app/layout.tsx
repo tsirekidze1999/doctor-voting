@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ექიმების არჩევანი",
+  title: "MedFriend — ექიმების არჩევანი",
   description: "აირჩიე წლის საუკეთესო ექიმი",
 };
 
