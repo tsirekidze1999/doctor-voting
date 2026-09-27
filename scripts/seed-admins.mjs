@@ -1,3 +1,4 @@
+import { seedNews } from "./seed-news.mjs";
 import { db } from "../src/prisma/db.ts";
 import { hashPassword } from "../src/admin-password.ts";
 import { ALL_PERMISSIONS } from "../src/admin-permissions.ts";
@@ -12,5 +13,6 @@ try {
         permissions: JSON.stringify(user.role === "superadmin" || user.role === "manager" ? ALL_PERMISSIONS : ["manageDoctors", "viewResults"]) });
     }
   });
+  await seedNews(db);
   console.log("Named accounts imported; existing passwords and permissions were not overwritten.");
 } finally { await db.close(); }

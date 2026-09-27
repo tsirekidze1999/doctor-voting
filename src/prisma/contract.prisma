@@ -1,5 +1,19 @@
 // use prisma-next
 
+model NewsSettings {
+  id Int @id
+  enabled Boolean @default(false)
+}
+
+model NewsSlide {
+  id Int @id @default(autoincrement())
+  title String
+  description String
+  photoUrl String
+  position Int @default(0)
+  createdAt TimestamptzString @default(now())
+}
+
 model AdminUser {
   id Int @id @default(autoincrement())
   username String @unique

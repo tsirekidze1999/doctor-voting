@@ -35,10 +35,10 @@ export async function authenticate(request: Request, tx: Tx) {
 export function sameOrigin(request: Request) {
   if (request.headers.get("origin") !== expectedOrigin(request)) throw new AdminError(403, "მოთხოვნის წყარო დაუშვებელია");
 }
-export async function readBody(request: Request): Promise<Record<string, unknown>> {
+export async function readBody(request: Request, limit = 140_000): Promise<Record<string, unknown>> {
   if (!request.headers.get("content-type")?.includes("application/json")) throw new AdminError(400, "საჭიროა JSON მოთხოვნა");
   const text = await request.text();
-  if (text.length > 140_000) throw new AdminError(413, "მოთხოვნა მეტისმეტად დიდია");
+  if (text.length > limit) throw new AdminError(413, "მოთხოვნა მეტისმეტად დიდია");
   try { const value = JSON.parse(text); if (value && typeof value === "object" && !Array.isArray(value)) return value; } catch {}
   throw new AdminError(400, "მოთხოვნის ფორმატი არასწორია");
 }

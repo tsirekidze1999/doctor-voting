@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
+import NewsManager from "./news-manager";
 import DoctorPhoto from "./doctor-photo";
 import PasswordForm from "./password-form";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
@@ -85,13 +86,14 @@ export default function AdminPage() {
   const pending=data.approvals.filter(a=>a.status==="pending");
   const election=data.elections.find(e=>e.id===selected)||data.elections[0];
   const totalVotes=data.elections.reduce((sum,e)=>sum+(e.totals.votes||0),0);
-  const nav=[["home","მიმოხილვა"],["elections","არჩევნები"],["approvals","დასამტკიცებელი"],...(can("manageAdmins")?[["team","გუნდი და უფლებები"]]:[]),...(can("viewAudit")?[["history","აქტივობის ისტორია"]]:[])];
+  const nav=[["home","მიმოხილვა"],["elections","არჩევნები"],["approvals","დასამტკიცებელი"],...(can("manageNews")?[["news","სიახლეები"]]:[]),...(can("manageAdmins")?[["team","გუნდი და უფლებები"]]:[]),...(can("viewAudit")?[["history","აქტივობის ისტორია"]]:[])];
   const act=(action:string, e:Election, extra:Record<string,unknown>={})=>setConfirm({title:(can(ACTION_PERMISSION[action])?"":"მოთხოვნა: ")+ACTION_LABELS[action],body:{action,electionId:e.id,...extra}});
   const actionText=(action:string,label:string)=>can(ACTION_PERMISSION[action])?label:label+" · მოთხოვნა";
   const editUser=(user:AdminIdentity)=>user.id!==me.id&&user.role!=="superadmin"&&(me.role==="superadmin"||user.role!=="manager")&&user.permissions.every(p=>can(p));
   return <div className={styles.shell}><aside className={styles.sidebar}><div className={styles.brand}><Image src="/medfriend-logo.png" alt="MedFriend" width={190} height={60} className={styles.brandLogo}/></div><p className={styles.navCaption}>სამუშაო სივრცე</p><nav>{nav.map(([key,label])=><button key={key} className={tab===key?styles.navActive:""} onClick={()=>{setTab(key);setSearch("")}}><Icon name={key}/>{label}{key==="approvals"&&pending.length>0&&<b>{pending.length}</b>}</button>)}</nav><div className={styles.sidebarBottom}><p>ყოველი მოქმედება მნიშვნელოვანია.</p><a href="/" target="_blank" rel="noreferrer">საიტის ნახვა ↗</a></div></aside>
   <div className={styles.workspace}><header className={styles.topbar}><span>სამუშაო სივრცე / <b>{nav.find(n=>n[0]===tab)?.[1]}</b></span><div className={styles.account}><span className={styles.avatar}>{me.name.slice(0,1)}</span><div><b>{me.name}</b><small>{roleName(me.role)}</small></div><button onClick={()=>setPasswordOpen(true)}>პაროლის შეცვლა</button><button aria-label="გასვლა" title="გასვლა" onClick={()=>void logout()} disabled={busy}><Icon name="logout"/></button></div></header>
   <main className={styles.content}>{notice&&<div className={styles.notice} role="status">{notice}<button onClick={()=>setNotice("")} aria-label="შეტყობინების დახურვა">×</button></div>}{error&&<div className={styles.error} role="alert">{error}</div>}
+  {tab==="news"&&can("manageNews")&&<NewsManager/>}
   {tab==="home"&&<><section className={styles.hero}><div><span className={styles.eyebrow}>შენი გუნდის სივრცე</span><h1>გამარჯობა, {me.name}! <span>☀</span></h1><p className={styles.dayWish}>წარმატებულ დღეს გისურვებ!</p><p className={styles.positiveNote}>შენი ყურადღება და ზრუნვა ამ დღეს უკეთესს ხდის.</p><button onClick={()=>setTab("elections")}>არჩევნების მართვა ↗</button></div><div className={styles.heroArt}><span>✚</span><small>ერთად უკეთესი<br/>შედეგებისთვის</small></div></section>
   <div className={styles.stats}>{[["არჩევნები",data.elections.length,"ყველა შექმნილი არჩევნები"],["მიმდინარე",data.elections.filter(e=>status(e,now)==="მიმდინარე").length,"ხმის მიცემა გახსნილია"],["დასამტკიცებელი",pending.length,"ელოდება გადაწყვეტილებას"],["მიღებული ხმები",can("viewResults")?totalVotes:"—","ოფიციალური ხმები"]].map(([label,value,sub])=><div className={styles.stat} key={label}><small>{label}</small><strong>{value}</strong><span>{sub}</span></div>)}</div>
   <div className={styles.sectionHeading}><div><h2>არჩევნების მიმოხილვა</h2><p>ბოლო არჩევნები და მათი მიმდინარე მდგომარეობა</p></div><button onClick={()=>setForm({kind:"election"})} className={styles.primary}>+ ახალი არჩევნები</button></div>

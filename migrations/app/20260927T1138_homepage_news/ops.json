@@ -1,0 +1,80 @@
+[
+  {
+    "id": "table.newsSettings",
+    "label": "Create table \"newsSettings\"",
+    "summary": "Creates table \"newsSettings\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "newsSettings"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"newsSettings\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"newsSettings\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"newsSettings\"",
+        "sql": "CREATE TABLE \"public\".\"newsSettings\" (\n  \"enabled\" bool DEFAULT false NOT NULL,\n  \"id\" int4 NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"newsSettings\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"newsSettings\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.newsSlide",
+    "label": "Create table \"newsSlide\"",
+    "summary": "Creates table \"newsSlide\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "newsSlide"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"newsSlide\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"newsSlide\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"newsSlide\"",
+        "sql": "CREATE TABLE \"public\".\"newsSlide\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"description\" text NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"photoUrl\" text NOT NULL,\n  \"position\" int4 DEFAULT 0 NOT NULL,\n  \"title\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"newsSlide\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"newsSlide\""
+        ]
+      }
+    ]
+  }
+]

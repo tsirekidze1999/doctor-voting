@@ -1,4 +1,5 @@
 export const PERMISSIONS = {
+  manageNews: "მთავარი გვერდის სიახლეებისა და სლაიდშოუს მართვა",
   editElections: "არჩევნების შექმნა და რედაქტირება",
   controlElections: "პირდაპირ ჩართვა / შეჩერება",
   deleteElections: "არჩევნების წაშლა",
@@ -13,9 +14,10 @@ export type Permission = keyof typeof PERMISSIONS;
 export const ALL_PERMISSIONS = Object.keys(PERMISSIONS) as Permission[];
 export type AdminIdentity = { id: number; username: string; name: string; role: string; permissions: Permission[]; active: boolean };
 export function allowed(admin: AdminIdentity, permission: Permission) {
-  return admin.role === "superadmin" || (admin.role === "manager" && permission === "viewVoterDetails") || admin.permissions.includes(permission);
+  return admin.role === "superadmin" || (admin.role === "manager" && ["viewVoterDetails", "manageNews"].includes(permission)) || admin.permissions.includes(permission);
 }
 export const ACTION_LABELS: Record<string, string> = {
+  "save-news": "სიახლის შენახვა", "delete-news": "სიახლის წაშლა", "toggle-news": "სლაიდშოუს ჩართვა / გამორთვა",
   create: "არჩევნების შექმნა", "edit-election": "არჩევნების რედაქტირება",
   start: "არჩევნების ჩართვა", stop: "არჩევნების შეჩერება",
   publish: "შედეგების გამოქვეყნება", unpublish: "შედეგების დამალვა",
