@@ -4,9 +4,11 @@ import { AdminError, authenticate, audit, failure, lockAdmin, readBody, sameOrig
 import { allowed } from "@/src/admin-permissions";
 import { positive, text } from "@/src/admin-actions";
 import { normalizePhoto } from "@/src/doctor-photo";
+import { ensureDemoNews } from "@/src/news-seed";
 export const dynamic = "force-dynamic";
 export async function GET(request: Request) {
   try {
+    await ensureDemoNews();
     const data = await db.transaction(async tx => {
       const {admin} = await authenticate(request, tx);
       if (!allowed(admin,"manageNews")) throw new AdminError(403,"სიახლეების მართვის უფლება არ გაქვს");
