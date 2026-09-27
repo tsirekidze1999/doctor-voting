@@ -2,12 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import DoctorProfile from "./doctor-profile";
+import WinnerDownload from "./winner-download";
 import SiteHeader from "./site-header";
 import { normalizePhone } from "@/src/phone";
 
 type Election = { id: number; title: string; description: string | null; startsAt: string; endsAt: string; isActive: boolean; winnerPublished: boolean };
 type Category = { id: number; name: string };
-type Candidate = { id: number; categoryId: number; firstName: string; lastName: string; specialty: string | null; photoUrl?: string | null; votes?: number };
+type Candidate = { id: number; categoryId: number; firstName: string; lastName: string; specialty: string | null; description?: string | null; photoUrl?: string | null; votes?: number };
 type Step = "confirm" | "phone" | "otp";
 const button = "flex-1 bg-black text-white py-3 px-4 rounded-xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed";
 const secondary = "flex-1 border border-gray-300 py-3 px-4 rounded-xl cursor-pointer disabled:opacity-50";
@@ -18,6 +20,10 @@ function formatRemaining(end: string, now: number) {
 }
 
 export default function VotingPage({ resultsOnly = false }: { resultsOnly?: boolean }) {
+  const [profile,setProfile]=useState<Candidate|null>(null);
+  const [archive,setArchive]=useState<{id:number;title:string;endsAt:string}[]>([]);
+  const [archiveId,setArchiveId]=useState<string|null>(null);
+  const linkedDoctorOpened=useRef(false);
   const [election, setElection] = useState<Election | null>(null);
   const [doctors, setDoctors] = useState<Candidate[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -48,6 +54,7 @@ export default function VotingPage({ resultsOnly = false }: { resultsOnly?: bool
   const selectedCategoryName = categories.find(category => category.id === selectedDoctor?.categoryId)?.name;
 
   useEffect(() => {
+    if (resultsOnly) return;
     const clientId = `${crypto.randomUUID()}-${crypto.randomUUID()}`;
     let active = true;
     async function checkQueue() {
@@ -59,15 +66,24 @@ export default function VotingPage({ resultsOnly = false }: { resultsOnly?: bool
     void checkQueue().catch(() => { if (active) setQueue({ allowed: true, position: 0 }); });
     const timer = window.setInterval(() => { void checkQueue().catch(() => undefined); }, 15_000);
     return () => { active = false; window.clearInterval(timer); };
-  }, []);
+  }, [resultsOnly]);
   useEffect(() => {
     if (queue && !queue.allowed) return;
     const controller = new AbortController();
     async function load() {
       try {
-        const response = await fetch("/api/election", { cache: "no-store", signal: controller.signal });
+        const query = new URLSearchParams({mode:resultsOnly?"winners":"vote"});
+        const incoming = new URLSearchParams(window.location.search);
+        const id = resultsOnly ? archiveId ?? incoming.get("election") : incoming.get("election");
+        if(id) query.set("election",id);
+        const response = await fetch(`/api/election?${query}`, { cache: "no-store", signal: controller.signal });
         const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "არჩევნების ჩატვირთვა ვერ მოხერხდა");
+        if(controller.signal.aborted)return;
+        if(resultsOnly)setArchive(data.archive||[]);
+        if (!response.ok) throw new Error(response.status===404?"ეს არჩევნები აღარ არის ხელმისაწვდომი. აირჩიე სხვა არჩევნები ან დაბრუნდი მთავარ გვერდზე.":data.error || "არჩევნების ჩატვირთვა ვერ მოხერხდა");
+        setLoadError("");
+        const doctorId=incoming.get("doctor");
+        if(!resultsOnly&&doctorId&&!linkedDoctorOpened.current){linkedDoctorOpened.current=true;const found=data.candidates.find((d:Candidate)=>String(d.id)===doctorId);if(found)setProfile(found);else setLoadError("გაზიარებული ექიმის ბარათი აღარ არის ხელმისაწვდომი.");}
         setElection(data.election);
         setDoctors(data.candidates);
         setCategories(data.categories);
@@ -79,7 +95,7 @@ export default function VotingPage({ resultsOnly = false }: { resultsOnly?: bool
     }
     void load();
     return () => controller.abort();
-  }, [queue]);
+  }, [queue,resultsOnly,archiveId]);
   useEffect(() => { const timer = window.setInterval(() => setNow(Date.now()), 30_000); return () => window.clearInterval(timer); }, []);
 
   function close() {
@@ -152,11 +168,12 @@ export default function VotingPage({ resultsOnly = false }: { resultsOnly?: bool
         </div>
         </>}
         <div id="award-results" />
+        {resultsOnly&&archive.length>0&&<div className="archive-picker"><label htmlFor="archive-election">გამარჯვებულების არქივი</label><select id="archive-election" value={archiveId ?? election?.id ?? ""} onChange={e=>{setArchiveId(e.target.value);setLoading(true);setLoadError("");const url=new URL(window.location.href);url.searchParams.set("election",e.target.value);window.history.replaceState(null,"",url.href);}}><option value="" disabled>აირჩიე არჩევნები</option>{archive.map(item=><option key={item.id} value={item.id}>{item.title} · {new Intl.DateTimeFormat("ka-GE",{year:"numeric",month:"short",day:"numeric",timeZone:"Asia/Tbilisi"}).format(new Date(item.endsAt))}</option>)}</select></div>}
         {loading && <p role="status" className="text-center">იტვირთება...</p>}
         {loadError && <div role="alert" className="text-center text-red-700"><p>{loadError}</p><button className="mt-3 underline" onClick={() => window.location.reload()}>ხელახლა ცდა</button></div>}
         {!resultsOnly && !loading && !loadError && !election && <p className="text-center">ამჟამად აქტიური არჩევნები არ მიმდინარეობს.</p>}
         {resultsOnly && !loading && !loadError && !election?.winnerPublished && <div className="award-empty"><span aria-hidden="true">✦</span><h2>გამარჯვებულების დრო ჯერ წინ არის</h2><p>დადასტურებული შედეგები გამოქვეყნების შემდეგ აქ გამოჩნდება.</p></div>}
-        {election?.winnerPublished && <section className="award-section"><span className="award-star" aria-hidden="true">✦</span><h2>ვულოცავთ გამარჯვებულებს!</h2><p>მადლობა თითოეულ მონაწილეს — დადასტურებული შედეგები</p><div className="award-grid">{categories.map(category => { const group = doctors.filter(d => d.categoryId === category.id); const max = Math.max(0, ...group.map(d => d.votes ?? 0)); const leaders = max > 0 ? group.filter(d => (d.votes ?? 0) === max) : []; return <article className="award-card" key={category.id}><span aria-hidden="true">✧</span><h3>{category.name}</h3>{leaders.length ? leaders.map(d => <div key={d.id}><strong>{d.firstName} {d.lastName}</strong><p>{max} ხმა</p></div>) : <p>ამ კატეგორიაში ხმა არ დაფიქსირებულა</p>}</article>; })}</div></section>}
+        {!loading && !loadError && election?.winnerPublished && <section className="award-section"><span className="award-star" aria-hidden="true">✦</span><h2>ვულოცავთ გამარჯვებულებს!</h2><p>{election.title} · დადასტურებული შედეგები</p><div className="award-grid">{categories.map(category => { const group = doctors.filter(d => d.categoryId === category.id); const max = Math.max(0, ...group.map(d => d.votes ?? 0)); const leaders = max > 0 ? group.filter(d => (d.votes ?? 0) === max) : []; return <article className="award-card" key={category.id}><span aria-hidden="true">✧</span><h3>{category.name}</h3>{leaders.length ? leaders.map(d => <div key={d.id}><strong>{d.firstName} {d.lastName}</strong><p>{max} ხმა</p><WinnerDownload name={`${d.firstName} ${d.lastName}`} category={category.name} election={election.title} date={election.endsAt} votes={max}/></div>) : <p>ამ კატეგორიაში ხმა არ დაფიქსირებულა</p>}</article>; })}</div></section>}
         {success && <div role="status" className="mb-8 rounded-xl bg-green-100 p-6 text-center text-green-900 text-xl font-bold">მადლობა, თქვენი ხმა მიღებულია. შეგიძლიათ სხვა კატეგორიაშიც მისცეთ ხმა.</div>}
         {election && election.isActive && !resultsOnly && !loading && !loadError && (
           <div className="mb-8 rounded-2xl border border-gray-200 bg-white p-5 sm:p-6">
@@ -200,7 +217,7 @@ export default function VotingPage({ resultsOnly = false }: { resultsOnly?: bool
                   <div className="doctor-photo h-48 rounded-xl mb-5 flex items-center justify-center overflow-hidden">{doctor.photoUrl ? <img src={doctor.photoUrl} alt={`${doctor.firstName} ${doctor.lastName}`} className="h-full w-full object-cover" /> : <span>{doctor.firstName.slice(0,1)}{doctor.lastName.slice(0,1)}</span>}</div>
                   <span className="inline-block rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-800">{category.name}</span>
                   <h3 className="mt-3 text-xl font-bold">{doctor.firstName} {doctor.lastName}</h3>
-                  <p className="text-gray-500 mt-2">{doctor.specialty}</p>
+                  <p className="text-gray-500 mt-2">{doctor.specialty}</p><button className="profile-open" onClick={()=>setProfile(doctor)}>ექიმის შესახებ / გაზიარება ↗</button>
                   <button onClick={() => { setSelectedDoctor(doctor); setStep("confirm"); setError(""); setSuccess(false); }}
                     className="mt-5 w-full bg-black text-white py-3 rounded-xl active:scale-95 transition-transform cursor-pointer">ხმის მიცემა</button>
                 </div>
@@ -211,6 +228,7 @@ export default function VotingPage({ resultsOnly = false }: { resultsOnly?: bool
 
       </section>
       </>}
+      {profile&&election&&<DoctorProfile doctor={profile} electionId={election.id} category={categories.find(c=>c.id===profile.categoryId)?.name||""} canVote={election.isActive&&!election.winnerPublished} close={()=>setProfile(null)} vote={()=>{setSelectedDoctor(profile);setProfile(null);setStep("confirm");setError("");setSuccess(false);}}/>}
       {selectedDoctor && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-6">
           <div role="dialog" aria-modal="true" aria-labelledby="vote-title" className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">

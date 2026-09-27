@@ -38,7 +38,7 @@ export function sameOrigin(request: Request) {
 export async function readBody(request: Request): Promise<Record<string, unknown>> {
   if (!request.headers.get("content-type")?.includes("application/json")) throw new AdminError(400, "საჭიროა JSON მოთხოვნა");
   const text = await request.text();
-  if (text.length > 24_000) throw new AdminError(413, "მოთხოვნა მეტისმეტად დიდია");
+  if (text.length > 140_000) throw new AdminError(413, "მოთხოვნა მეტისმეტად დიდია");
   try { const value = JSON.parse(text); if (value && typeof value === "object" && !Array.isArray(value)) return value; } catch {}
   throw new AdminError(400, "მოთხოვნის ფორმატი არასწორია");
 }

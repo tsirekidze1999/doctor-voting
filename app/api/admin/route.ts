@@ -69,7 +69,7 @@ export async function POST(request: Request) {
         if (approval.userId === admin.id) throw new AdminError(403, "საკუთარ მოთხოვნას სხვა უფლებამოსილი ადმინი ადასტურებს");
         if (body.action === "approve") {
           if (!await tx.orm.public.AdminUser.where({ id: approval.userId, active: true }).first()) throw new AdminError(409, "მოთხოვნის ავტორის ანგარიში გამორთულია");
-          const data = normalizeAction(JSON.parse(approval.payload));
+          const data = await normalizeAction(JSON.parse(approval.payload));
           if (await fingerprint(tx, data) !== approval.fingerprint) throw new AdminError(409, "მონაცემები შეიცვალა. უარყავი ძველი მოთხოვნა და მოითხოვე ახალი.");
           await executeAction(tx, admin, data);
         }
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
       const action = typeof body.action === "string" ? body.action : "";
       const permission = ACTION_PERMISSION[action];
       if (!Object.hasOwn(ACTION_PERMISSION, action) || !permission) throw new AdminError(400, "უცნობი მოქმედება");
-      const data = normalizeAction(body);
+      const data = await normalizeAction(body);
       if (!allowed(admin, permission)) {
         const hash = await fingerprint(tx, data);
         const payload = JSON.stringify(data);

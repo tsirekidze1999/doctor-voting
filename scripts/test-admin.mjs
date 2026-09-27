@@ -1,3 +1,4 @@
+import sharp from "sharp";
 import assert from "node:assert/strict";
 import { randomBytes } from "node:crypto";
 import { db } from "../src/prisma/db.ts";
@@ -42,6 +43,18 @@ try {
   const categoryId=(await call(owner)).elections.find(e=>e.id===electionId).categories[0].id;
   await call(mod,{action:"add-candidate",electionId,categoryId,firstName:"QA",lastName:tag});
   const candidateId=(await call(owner)).elections.find(e=>e.id===electionId).categories[0].candidates[0].id;
+  const photoBytes=await sharp({create:{width:64,height:80,channels:3,background:"#008080"}}).jpeg().toBuffer();
+  const photoUrl="data:image/jpeg;base64,"+photoBytes.toString("base64");
+  const editPhoto={action:"update-candidate",electionId,categoryId,candidateId,firstName:"QA",lastName:tag,photoUrl};
+  await call(mod,editPhoto);
+  const savedPhoto=(await call(owner)).elections.find(e=>e.id===electionId).categories[0].candidates[0].photoUrl;
+  assert.equal((await sharp(Buffer.from(savedPhoto.split(",")[1],"base64")).metadata()).width,64);checks++;
+  await call(null,editPhoto,401);
+  await call(mod,{...editPhoto,photoUrl:"data:image/svg+xml;base64,PHN2Zz4="},400);
+  await call(mod,{...editPhoto,photoUrl:"data:image/jpeg;base64,bm90YW5pbWFnZQ=="},400);
+  await call(mod,{...editPhoto,photoUrl:"data:image/jpeg;base64,"+"A".repeat(110001)},400);
+  await call(mod,{...editPhoto,photoUrl:""});
+  assert.equal((await call(owner)).elections.find(e=>e.id===electionId).categories[0].candidates[0].photoUrl,null);checks++;
   await db.orm.public.Vote.create({electionId,categoryId,candidateId,phone:"TEST:"+tag});
   const requested=await call(mod,{action:"start",electionId});assert.equal(requested.pending,true);checks++;
   let snapshot=await call(owner);

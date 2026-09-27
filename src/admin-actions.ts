@@ -1,3 +1,4 @@
+import { normalizePhoto } from "./doctor-photo";
 import { createHash } from "node:crypto";
 import { db } from "./prisma/db";
 import { AdminError, audit, type Tx } from "./admin-auth";
@@ -12,7 +13,7 @@ export function text(value: unknown, label: string, optional = false, max = 200)
   if (typeof value !== "string" || !value.trim() || value.trim().length > max) throw new AdminError(400, "შეავსე სწორად: " + label);
   return value.trim();
 }
-export function normalizeAction(body: Body) {
+export async function normalizeAction(body: Body) {
   const action = text(body.action, "მოქმედება");
   const data: Body = { action };
   if (action !== "create") data.electionId = positive(body.electionId);
@@ -29,8 +30,7 @@ export function normalizeAction(body: Body) {
   if (["add-candidate", "update-candidate"].includes(action)) {
     data.firstName = text(body.firstName, "სახელი", false, 80); data.lastName = text(body.lastName, "გვარი", false, 80);
     data.specialty = text(body.specialty, "სპეციალობა", true, 150); data.description = text(body.description, "აღწერა", true, 2000);
-    const photo = text(body.photoUrl, "ფოტოს ბმული", true, 1500);
-    if (photo) { try { if (new URL(photo).protocol !== "https:") throw new Error(); } catch { throw new AdminError(400, "ფოტოსთვის საჭიროა https ბმული"); } }
+    const photo = await normalizePhoto(body.photoUrl);
     data.photoUrl = photo;
   }
   return data;
