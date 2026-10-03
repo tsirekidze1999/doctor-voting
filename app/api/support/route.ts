@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/src/prisma/db";
 import { AdminError, failure, readBody, sameOrigin, tokenHash } from "@/src/admin-auth";
-import { botResponse } from "@/src/support-bot";
+import { botResponse, knowledgeIntent, type BotContext } from "@/src/support-bot";
 import { text } from "@/src/admin-actions";
 import { SUPPORT_COOKIE, lockSupport, mailEnabled, newSupportToken, supportEmail, supportLimit, supportThread } from "@/src/support";
 export const dynamic="force-dynamic";
@@ -16,7 +16,7 @@ export async function POST(request:Request){try{sameOrigin(request);const body=a
  if(body.action==="bot") {
  if(!thread?.emailConsent)throw new AdminError(400,"ჯერ შეიყვანე სახელი და ელფოსტა");if(thread.status!=="bot")throw new AdminError(409,"მიმოწერა უკვე ოპერატორთანაა");
  if((await tx.orm.public.SupportMessage.where({threadId:thread.id}).limit(501).all()).length>=500)throw new AdminError(429,"მიმოწერის ლიმიტი ამოიწურა");
- const recent=(await tx.orm.public.SupportMessage.where({threadId:thread.id,sender:"visitor"}).orderBy(m=>m.id.desc()).limit(3).all()).map(m=>m.body);const reply=botResponse(message,recent);await tx.orm.public.SupportMessage.create({threadId:thread.id,sender:"visitor",body:message});await tx.orm.public.SupportMessage.create({threadId:thread.id,sender:"bot",actorName:reply.name,body:reply.text});await tx.orm.public.SupportThread.where({id:thread.id}).update({updatedAt:new Date().toISOString(),status:reply.escalate?"open":"bot",unread:reply.escalate});return {message:"",escalate:reply.escalate};
+ const recent=(await tx.orm.public.SupportMessage.where({threadId:thread.id,sender:"visitor"}).orderBy(m=>m.id.desc()).limit(3).all()).map(m=>m.body);let context:BotContext|undefined;if(knowledgeIntent(message,recent)){const elections=await tx.orm.public.Election.orderBy(e=>e.startsAt.desc()).limit(100).all();context={elections,doctors:[]};if(knowledgeIntent(message,recent)==="doctor"){for(const election of elections.filter(e=>Date.parse(e.endsAt)>Date.now()).slice(0,10)){const categories=await tx.orm.public.Category.where({electionId:election.id}).all();const doctors=await tx.orm.public.Candidate.where({electionId:election.id}).limit(2000).all();context.doctors.push(...doctors.map(d=>({firstName:d.firstName,lastName:d.lastName,specialty:d.specialty,electionId:d.electionId,category:categories.find(c=>c.id===d.categoryId)?.name||"კატეგორია"})));}}}const reply=botResponse(message,recent,context);await tx.orm.public.SupportMessage.create({threadId:thread.id,sender:"visitor",body:message});await tx.orm.public.SupportMessage.create({threadId:thread.id,sender:"bot",actorName:reply.name,body:reply.text});await tx.orm.public.SupportThread.where({id:thread.id}).update({updatedAt:new Date().toISOString(),status:reply.escalate?"open":"bot",unread:reply.escalate});return {message:"",escalate:reply.escalate};
  }
  if(!thread){const name=text(body.name,"სახელი",false,80),email=supportEmail(body.email);if(body.emailConsent!==true)throw new AdminError(400,"დაადასტურე ელფოსტით პასუხის მიღება");await supportLimit(tx,"new:"+tokenHash(ip),3,3600000);thread=await tx.orm.public.SupportThread.create({tokenHash:tokenHash(token),name,email,emailConsent:true,status:"open",unread:true});created=true;}
  if(!thread.emailConsent){const name=text(body.name,"სახელი",false,80),email=supportEmail(body.email);if(body.emailConsent!==true)throw new AdminError(400,"დაადასტურე ელფოსტით პასუხის მიღება");await tx.orm.public.SupportThread.where({id:thread.id}).update({name,email,emailConsent:true,status:"open"});}
@@ -24,6 +24,7 @@ export async function POST(request:Request){try{sameOrigin(request);const body=a
  if((await tx.orm.public.SupportMessage.where({threadId:thread.id}).limit(501).all()).length>=500)throw new AdminError(429,"მიმოწერის ლიმიტი ამოიწურა. დაგვიკავშირდი ელფოსტით.");await tx.orm.public.SupportMessage.create({threadId:thread.id,sender:"visitor",body:message});await tx.orm.public.SupportThread.where({id:thread.id}).update({unread:true,status:"open",updatedAt:new Date().toISOString()});return {message:"შეტყობინება მიღებულია. ჩვენი გუნდი შეძლებისდაგვარად მალე გიპასუხებს."};});
  const response=NextResponse.json(data,{headers:{"Cache-Control":"no-store"}});if(created)response.cookies.set(SUPPORT_COOKIE,token,{httpOnly:true,secure:process.env.NODE_ENV==="production",sameSite:"strict",path:"/",maxAge:30*86400});return response;
  }catch(e){return failure(e);}}
+
 
 
 
