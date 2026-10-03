@@ -33,7 +33,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'2fd6940ed94d3dda54099330c9b36770ab0012d5f539ea867b81024c9e541c67'>;
+  StorageHashBase<'92b951b4c29aaf22f9bf2ebdfb4949926f647b2f13a1ad587a533594c538bc9e'>;
 export type ExecutionHash =
   ExecutionHashBase<'b34bcbe47452c560415265b62b6420a150e7e1680ab5d8e8f173780e1a07601f'>;
 export type ProfileHash =
@@ -357,9 +357,6 @@ export type FieldOutputTypes = {
       readonly enabled: CodecTypes['pg/bool@1']['output'];
     };
     readonly SupportThread: {
-      readonly rating: CodecTypes['pg/int4@1']['output'] | null;
-      readonly ratingComment: CodecTypes['pg/text@1']['output'] | null;
-      readonly ratedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly tokenHash: CodecTypes['pg/text@1']['output'];
       readonly name: CodecTypes['pg/text@1']['output'];
@@ -379,12 +376,6 @@ export type FieldOutputTypes = {
       readonly attempts: CodecTypes['pg/int4@1']['output'];
       readonly consumedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
-    };
-    readonly VisitorSession: {
-      readonly id: CodecTypes['pg/int4@1']['output'];
-      readonly tokenHash: CodecTypes['pg/text@1']['output'];
-      readonly startedAt: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly lastSeenAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
     readonly Vote: {
       readonly id: CodecTypes['pg/int4@1']['output'];
@@ -515,9 +506,6 @@ export type FieldInputTypes = {
       readonly enabled: CodecTypes['pg/bool@1']['input'];
     };
     readonly SupportThread: {
-      readonly rating: CodecTypes['pg/int4@1']['input'] | null;
-      readonly ratingComment: CodecTypes['pg/text@1']['input'] | null;
-      readonly ratedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly tokenHash: CodecTypes['pg/text@1']['input'];
       readonly name: CodecTypes['pg/text@1']['input'];
@@ -537,12 +525,6 @@ export type FieldInputTypes = {
       readonly attempts: CodecTypes['pg/int4@1']['input'];
       readonly consumedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
-    };
-    readonly VisitorSession: {
-      readonly id: CodecTypes['pg/int4@1']['input'];
-      readonly tokenHash: CodecTypes['pg/text@1']['input'];
-      readonly startedAt: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly lastSeenAt: CodecTypes['pg/timestamptz-string@1']['input'];
     };
     readonly Vote: {
       readonly id: CodecTypes['pg/int4@1']['input'];
@@ -678,9 +660,6 @@ export type StorageColumnTypes = {
       readonly emailConsent: CodecTypes['pg/bool@1']['output'];
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly name: CodecTypes['pg/text@1']['output'];
-      readonly ratedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
-      readonly rating: CodecTypes['pg/int4@1']['output'] | null;
-      readonly ratingComment: CodecTypes['pg/text@1']['output'] | null;
       readonly status: CodecTypes['pg/text@1']['output'];
       readonly tokenHash: CodecTypes['pg/text@1']['output'];
       readonly unread: CodecTypes['pg/bool@1']['output'];
@@ -695,12 +674,6 @@ export type StorageColumnTypes = {
       readonly expiresAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly phone: CodecTypes['pg/text@1']['output'] | null;
-    };
-    readonly visitorSession: {
-      readonly id: CodecTypes['pg/int4@1']['output'];
-      readonly lastSeenAt: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly startedAt: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly tokenHash: CodecTypes['pg/text@1']['output'];
     };
     readonly vote: {
       readonly candidateId: CodecTypes['pg/int4@1']['output'];
@@ -836,9 +809,6 @@ export type StorageColumnInputTypes = {
       readonly emailConsent: CodecTypes['pg/bool@1']['input'];
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly name: CodecTypes['pg/text@1']['input'];
-      readonly ratedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
-      readonly rating: CodecTypes['pg/int4@1']['input'] | null;
-      readonly ratingComment: CodecTypes['pg/text@1']['input'] | null;
       readonly status: CodecTypes['pg/text@1']['input'];
       readonly tokenHash: CodecTypes['pg/text@1']['input'];
       readonly unread: CodecTypes['pg/bool@1']['input'];
@@ -853,12 +823,6 @@ export type StorageColumnInputTypes = {
       readonly expiresAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly phone: CodecTypes['pg/text@1']['input'] | null;
-    };
-    readonly visitorSession: {
-      readonly id: CodecTypes['pg/int4@1']['input'];
-      readonly lastSeenAt: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly startedAt: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly tokenHash: CodecTypes['pg/text@1']['input'];
     };
     readonly vote: {
       readonly candidateId: CodecTypes['pg/int4@1']['input'];
@@ -1638,21 +1602,6 @@ type ContractBase = Omit<
             };
             readonly supportThread: {
               columns: {
-                readonly rating: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: true;
-                };
-                readonly ratingComment: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: true;
-                };
-                readonly ratedAt: {
-                  readonly nativeType: 'timestamptz';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                  readonly nullable: true;
-                };
                 readonly id: {
                   readonly nativeType: 'int4';
                   readonly codecId: 'pg/int4@1';
@@ -1799,53 +1748,6 @@ type ContractBase = Omit<
                   readonly name: 'verificationCode_expiresAt_idx_6b6b8c10';
                   readonly prefix: 'verificationCode_expiresAt_idx';
                   readonly columns: readonly ['expiresAt'];
-                  readonly unique: false;
-                },
-              ];
-              foreignKeys: readonly [];
-            };
-            readonly visitorSession: {
-              columns: {
-                readonly id: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'function';
-                    readonly expression: 'autoincrement()';
-                  };
-                };
-                readonly tokenHash: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
-                readonly startedAt: {
-                  readonly nativeType: 'timestamptz';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                  readonly nullable: false;
-                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
-                };
-                readonly lastSeenAt: {
-                  readonly nativeType: 'timestamptz';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                  readonly nullable: false;
-                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
-                };
-              };
-              primaryKey: { readonly columns: readonly ['id'] };
-              uniques: readonly [{ readonly columns: readonly ['tokenHash'] }];
-              indexes: readonly [
-                {
-                  readonly name: 'visitorSession_lastSeenAt_idx_b69845da';
-                  readonly prefix: 'visitorSession_lastSeenAt_idx';
-                  readonly columns: readonly ['lastSeenAt'];
-                  readonly unique: false;
-                },
-                {
-                  readonly name: 'visitorSession_startedAt_idx_cac56236';
-                  readonly prefix: 'visitorSession_startedAt_idx';
-                  readonly columns: readonly ['startedAt'];
                   readonly unique: false;
                 },
               ];
@@ -2015,10 +1917,6 @@ type ContractBase = Omit<
     readonly supportRate: {
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'SupportRate';
-    };
-    readonly visitorSession: {
-      readonly namespace: 'public' & NamespaceId;
-      readonly model: 'VisitorSession';
     };
   };
   readonly domain: {
@@ -2795,21 +2693,6 @@ type ContractBase = Omit<
           };
           readonly SupportThread: {
             readonly fields: {
-              readonly rating: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly ratingComment: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly ratedAt: {
-                readonly nullable: true;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                };
-              };
               readonly id: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
@@ -2858,9 +2741,6 @@ type ContractBase = Omit<
               readonly table: 'supportThread';
               readonly namespaceId: 'public';
               readonly fields: {
-                readonly rating: { readonly column: 'rating' };
-                readonly ratingComment: { readonly column: 'ratingComment' };
-                readonly ratedAt: { readonly column: 'ratedAt' };
                 readonly id: { readonly column: 'id' };
                 readonly tokenHash: { readonly column: 'tokenHash' };
                 readonly name: { readonly column: 'name' };
@@ -2930,43 +2810,6 @@ type ContractBase = Omit<
                 readonly attempts: { readonly column: 'attempts' };
                 readonly consumedAt: { readonly column: 'consumedAt' };
                 readonly createdAt: { readonly column: 'createdAt' };
-              };
-            };
-          };
-          readonly VisitorSession: {
-            readonly fields: {
-              readonly id: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly tokenHash: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly startedAt: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                };
-              };
-              readonly lastSeenAt: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                };
-              };
-            };
-            readonly relations: Record<string, never>;
-            readonly storage: {
-              readonly table: 'visitorSession';
-              readonly namespaceId: 'public';
-              readonly fields: {
-                readonly id: { readonly column: 'id' };
-                readonly tokenHash: { readonly column: 'tokenHash' };
-                readonly startedAt: { readonly column: 'startedAt' };
-                readonly lastSeenAt: { readonly column: 'lastSeenAt' };
               };
             };
           };

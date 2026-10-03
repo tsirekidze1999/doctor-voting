@@ -1,0 +1,7 @@
+async function collect<T>(rows:AsyncIterable<T>){const result:T[]=[];for await(const row of rows)result.push(row);return result;}
+import {db} from '@/src/prisma/db';
+import {authenticate,failure,AdminError} from '@/src/admin-auth';
+import {allowed} from '@/src/admin-permissions';
+export const dynamic='force-dynamic';
+export async function GET(request:Request){try{const data=await db.transaction(async tx=>{const {admin}=await authenticate(request,tx);if(!allowed(admin,'viewAudit'))throw new AdminError(403,'სტატისტიკის ნახვის უფლება არ გაქვს');const live=await collect(tx.query(db.raw.sql`SELECT count(*)::int AS count FROM public."visitorSession" WHERE "lastSeenAt">now()-interval '2 minutes'`.returnsRow({count:'pg/int4@1'}).build()));const daily=await collect(tx.query(db.raw.sql`SELECT to_char("startedAt" AT TIME ZONE 'Asia/Tbilisi','YYYY-MM-DD') AS period,count(*)::int AS count FROM public."visitorSession" WHERE "startedAt">now()-interval '30 days' GROUP BY 1 ORDER BY 1 DESC`.returnsRow({period:'pg/text@1',count:'pg/int4@1'}).build()));const hourly=await collect(tx.query(db.raw.sql`SELECT to_char("startedAt" AT TIME ZONE 'Asia/Tbilisi','YYYY-MM-DD HH24:00') AS period,count(*)::int AS count FROM public."visitorSession" WHERE "startedAt">now()-interval '24 hours' GROUP BY 1 ORDER BY 1 DESC`.returnsRow({period:'pg/text@1',count:'pg/int4@1'}).build()));return {live,daily,hourly}});return Response.json(data,{headers:{'Cache-Control':'no-store'}})}catch(e){return failure(e)}}
+

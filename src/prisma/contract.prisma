@@ -161,3 +161,48 @@ model Sponsor {
   @@index([electionId])
 }
 
+
+model SupportSettings {
+ id Int @id
+ enabled Boolean @default(false)
+}
+model SupportThread {
+ rating Int?
+ ratingComment String?
+ ratedAt TimestamptzString?
+ id Int @id @default(autoincrement())
+ tokenHash String @unique
+ name String
+ email String
+ emailConsent Boolean @default(false)
+ status String @default("open")
+ unread Boolean @default(true)
+ createdAt TimestamptzString @default(now())
+ updatedAt temporal.updatedAtString()
+ @@index([status])
+}
+model SupportMessage {
+ id Int @id @default(autoincrement())
+ threadId Int
+ sender String
+ actorName String?
+ body String
+ emailSentAt TimestamptzString?
+ createdAt TimestamptzString @default(now())
+ @@index([threadId])
+}
+model SupportRate {
+ id Int @id @default(autoincrement())
+ key String @unique
+ count Int @default(0)
+ windowStart TimestamptzString @default(now())
+}
+
+model VisitorSession {
+ id Int @id @default(autoincrement())
+ tokenHash String @unique
+ startedAt TimestamptzString @default(now())
+ lastSeenAt TimestamptzString @default(now())
+ @@index([lastSeenAt])
+ @@index([startedAt])
+}

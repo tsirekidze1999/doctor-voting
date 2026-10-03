@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/src/prisma/db";
 import { AdminError, audit, authenticate, failure, identity, lockAdmin, readBody, sameOrigin } from "@/src/admin-auth";
-import { ACTION_PERMISSION, ACTION_LABELS, ALL_PERMISSIONS, allowed, type Permission } from "@/src/admin-permissions";
+import { ACTION_PERMISSION, ACTION_LABELS, ALL_PERMISSIONS, ROLES, allowed, type Permission } from "@/src/admin-permissions";
 import { executeAction, fingerprint, normalizeAction, positive, text, voteCounts } from "@/src/admin-actions";
 import { hashPassword } from "@/src/admin-password";
 export const dynamic = "force-dynamic";
@@ -23,7 +23,8 @@ export async function GET(request: Request) {
       const sessions = allowed(admin, "viewAudit") ? await tx.orm.public.AdminSession.select("id", "userId", "createdAt", "lastSeenAt", "endedAt", "expiresAt").orderBy(s => s.id.desc()).limit(100).all() : [];
       const names = allowed(admin, "viewAudit") ? await tx.orm.public.AdminUser.select("id", "name").all() : [];
       const voters = allowed(admin, "viewVoterDetails") ? (await tx.orm.public.Vote.orderBy(v => v.id.desc()).limit(500).all()).map(v => ({ id: v.id, electionId: v.electionId, categoryId: v.categoryId, candidateId: v.candidateId, phone: v.phone, createdAt: v.createdAt })) : [];
-      return { admin, elections, approvals, users, history, sessions: sessions.map(s => ({ ...s, name: names.find(n => n.id === s.userId)?.name || "ადმინი" })), voters };
+      const supportUnread=allowed(admin,"replySupport")?(await tx.orm.public.SupportThread.where({unread:true}).all()).length:0;
+      return { supportUnread, admin, elections, approvals, users, history, sessions: sessions.map(s => ({ ...s, name: names.find(n => n.id === s.userId)?.name || "ადმინი" })), voters };
     });
     return NextResponse.json(result, { headers: { "Cache-Control": "no-store" } });
   } catch (error) { return failure(error); }
@@ -53,9 +54,10 @@ export async function POST(request: Request) {
         if (!allowed(admin, "manageAdmins")) throw new AdminError(403, "ადმინების მართვის უფლება არ გაქვს");
         const existing = body.id ? await tx.orm.public.AdminUser.where({ id: positive(body.id) }).first() : null;
         if (body.id && !existing) throw new AdminError(404, "ადმინი ვერ მოიძებნა");
-        if (existing?.id === admin.id) throw new AdminError(403, "საკუთარი უფლებები ამ ფორმით ვერ შეიცვლება");
+        if (existing?.id === admin.id) throw new AdminError(403, "საკუთარი როლი და უფლებები ამ ფორმით ვერ შეიცვლება");
         if (existing?.role === "superadmin") throw new AdminError(403, "მთავარი ადმინის ანგარიში დაცულია");
-        if (admin.role !== "superadmin" && existing?.role === "manager") throw new AdminError(403, "მენეჯერის ანგარიშს მთავარი ადმინი მართავს");
+        const role = body.role ?? existing?.role ?? "admin";
+        if (typeof role !== "string" || !Object.hasOwn(ROLES,role) || role === "superadmin" || role === "moderator") throw new AdminError(400,"აირჩიე გუნდის სწორი როლი");
         const username = text(body.username, "მომხმარებელი", false, 40).toLowerCase();
         if (!/^[a-z0-9_.-]{3,40}$/.test(username)) throw new AdminError(400, "მომხმარებლის სახელი: 3–40 ლათინური ასო ან ციფრი");
         const duplicate = await tx.orm.public.AdminUser.where({ username }).first();
@@ -68,13 +70,13 @@ export async function POST(request: Request) {
         if (typeof body.active !== "boolean") throw new AdminError(400, "მიუთითე ანგარიშის სტატუსი");
         const password = body.password;
         if ((!existing || password) && (typeof password !== "string" || password.length < 12 || password.length > 128)) throw new AdminError(400, "ახალი პაროლი უნდა შეიცავდეს 12–128 სიმბოლოს");
-        const values = { username, name, permissions: JSON.stringify(permissions), active: body.active };
+        const values = { username, name, role, permissions: JSON.stringify(permissions), active: body.active };
         if (existing) {
           await tx.orm.public.AdminUser.where({ id: existing.id }).update({ ...values, ...(password ? { passwordHash: await hashPassword(password as string) } : {}) });
           if (password) for (const c of await tx.orm.public.VerificationCode.where({email:"admin-recovery:"+username}).where(c=>c.consumedAt.isNull()).all()) await tx.orm.public.VerificationCode.where({id:c.id}).update({consumedAt:new Date().toISOString()});
           if (!body.active || password) for (const s of await tx.orm.public.AdminSession.where({ userId: existing.id }).where(s => s.endedAt.isNull()).all()) await tx.orm.public.AdminSession.where({ id: s.id }).update({ endedAt: new Date().toISOString() });
-        } else await tx.orm.public.AdminUser.create({ ...values, passwordHash: await hashPassword(password as string), role: "moderator" });
-        await audit(tx, admin, "save-user", name + " (" + username + "): " + (body.active ? "აქტიური" : "გამორთული") + "; უფლებები: " + permissions.join(", "));
+        } else await tx.orm.public.AdminUser.create({ ...values, passwordHash: await hashPassword(password as string) });
+        await audit(tx, admin, "save-user", name + " (" + username + "): " + (body.active ? "აქტიური" : "გამორთული") + "; როლი: " + role + "; უფლებები: " + permissions.join(", "));
         return { message: "ანგარიში და უფლებები შენახულია" };
       }
       if (body.action === "approve" || body.action === "reject") {

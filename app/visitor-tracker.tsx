@@ -1,0 +1,4 @@
+"use client";
+import {useEffect} from "react";
+import {usePathname} from "next/navigation";
+export default function VisitorTracker(){const path=usePathname();useEffect(()=>{if(path.startsWith('/admin'))return;const ping=()=>{if(document.hidden)return;try{const raw=localStorage.getItem('medfriend-visit');let v=raw?JSON.parse(raw):null;if(!v||typeof v.token!=='string'||Date.now()-v.time>1800000)v={token:crypto.randomUUID(),time:Date.now()};v.time=Date.now();localStorage.setItem('medfriend-visit',JSON.stringify(v));void fetch('/api/visitors',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:v.token})}).catch(()=>{});}catch{}};ping();const t=setInterval(ping,60000);document.addEventListener('visibilitychange',ping);return()=>{clearInterval(t);document.removeEventListener('visibilitychange',ping)}},[path]);return null}

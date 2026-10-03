@@ -1,0 +1,320 @@
+[
+  {
+    "id": "table.supportMessage",
+    "label": "Create table \"supportMessage\"",
+    "summary": "Creates table \"supportMessage\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "supportMessage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"supportMessage\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"supportMessage\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"supportMessage\"",
+        "sql": "CREATE TABLE \"public\".\"supportMessage\" (\n  \"actorName\" text,\n  \"body\" text NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"emailSentAt\" timestamptz,\n  \"id\" SERIAL NOT NULL,\n  \"sender\" text NOT NULL,\n  \"threadId\" int4 NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"supportMessage\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"supportMessage\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.supportRate",
+    "label": "Create table \"supportRate\"",
+    "summary": "Creates table \"supportRate\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "supportRate"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"supportRate\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"supportRate\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"supportRate\"",
+        "sql": "CREATE TABLE \"public\".\"supportRate\" (\n  \"count\" int4 DEFAULT 0 NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"key\" text NOT NULL,\n  \"windowStart\" timestamptz DEFAULT (now()) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"supportRate\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"supportRate\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.supportSettings",
+    "label": "Create table \"supportSettings\"",
+    "summary": "Creates table \"supportSettings\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "supportSettings"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"supportSettings\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"supportSettings\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"supportSettings\"",
+        "sql": "CREATE TABLE \"public\".\"supportSettings\" (\n  \"enabled\" bool DEFAULT false NOT NULL,\n  \"id\" int4 NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"supportSettings\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"supportSettings\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.supportThread",
+    "label": "Create table \"supportThread\"",
+    "summary": "Creates table \"supportThread\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "supportThread"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"supportThread\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"supportThread\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"supportThread\"",
+        "sql": "CREATE TABLE \"public\".\"supportThread\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"email\" text NOT NULL,\n  \"emailConsent\" bool DEFAULT false NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"name\" text NOT NULL,\n  \"ratedAt\" timestamptz,\n  \"rating\" int4,\n  \"ratingComment\" text,\n  \"status\" text DEFAULT 'open' NOT NULL,\n  \"tokenHash\" text NOT NULL,\n  \"unread\" bool DEFAULT true NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"supportThread\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"supportThread\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.supportRate.supportRate_key_key",
+    "label": "Add unique constraint on \"supportRate\" (key)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "supportRate_key_key",
+        "table": "supportRate"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"supportRate_key_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "supportRate_key_key",
+          "public",
+          "\"public\".\"supportRate\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"supportRate_key_key\"",
+        "sql": "ALTER TABLE \"public\".\"supportRate\" ADD CONSTRAINT \"supportRate_key_key\" UNIQUE (\"key\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"supportRate_key_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "supportRate_key_key",
+          "public",
+          "\"public\".\"supportRate\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.supportThread.supportThread_tokenHash_key",
+    "label": "Add unique constraint on \"supportThread\" (tokenHash)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "supportThread_tokenHash_key",
+        "table": "supportThread"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"supportThread_tokenHash_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "supportThread_tokenHash_key",
+          "public",
+          "\"public\".\"supportThread\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"supportThread_tokenHash_key\"",
+        "sql": "ALTER TABLE \"public\".\"supportThread\" ADD CONSTRAINT \"supportThread_tokenHash_key\" UNIQUE (\"tokenHash\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"supportThread_tokenHash_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "supportThread_tokenHash_key",
+          "public",
+          "\"public\".\"supportThread\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.supportMessage.supportMessage_threadId_idx_6deac339",
+    "label": "Create index \"supportMessage_threadId_idx_6deac339\" on \"supportMessage\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "supportMessage_threadId_idx_6deac339",
+        "table": "supportMessage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"supportMessage_threadId_idx_6deac339\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"supportMessage_threadId_idx_6deac339\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"supportMessage_threadId_idx_6deac339\"",
+        "sql": "CREATE INDEX \"supportMessage_threadId_idx_6deac339\" ON \"public\".\"supportMessage\" (\"threadId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"supportMessage_threadId_idx_6deac339\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"supportMessage_threadId_idx_6deac339\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.supportThread.supportThread_status_idx_e98638ab",
+    "label": "Create index \"supportThread_status_idx_e98638ab\" on \"supportThread\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "supportThread_status_idx_e98638ab",
+        "table": "supportThread"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"supportThread_status_idx_e98638ab\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"supportThread_status_idx_e98638ab\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"supportThread_status_idx_e98638ab\"",
+        "sql": "CREATE INDEX \"supportThread_status_idx_e98638ab\" ON \"public\".\"supportThread\" (\"status\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"supportThread_status_idx_e98638ab\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"supportThread_status_idx_e98638ab\""
+        ]
+      }
+    ]
+  }
+]

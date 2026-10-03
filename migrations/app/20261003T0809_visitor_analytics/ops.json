@@ -1,0 +1,161 @@
+[
+  {
+    "id": "table.visitorSession",
+    "label": "Create table \"visitorSession\"",
+    "summary": "Creates table \"visitorSession\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "visitorSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"visitorSession\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"visitorSession\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"visitorSession\"",
+        "sql": "CREATE TABLE \"public\".\"visitorSession\" (\n  \"id\" SERIAL NOT NULL,\n  \"lastSeenAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"startedAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"tokenHash\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"visitorSession\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"visitorSession\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.visitorSession.visitorSession_tokenHash_key",
+    "label": "Add unique constraint on \"visitorSession\" (tokenHash)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "visitorSession_tokenHash_key",
+        "table": "visitorSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"visitorSession_tokenHash_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "visitorSession_tokenHash_key",
+          "public",
+          "\"public\".\"visitorSession\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"visitorSession_tokenHash_key\"",
+        "sql": "ALTER TABLE \"public\".\"visitorSession\" ADD CONSTRAINT \"visitorSession_tokenHash_key\" UNIQUE (\"tokenHash\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"visitorSession_tokenHash_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "visitorSession_tokenHash_key",
+          "public",
+          "\"public\".\"visitorSession\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.visitorSession.visitorSession_lastSeenAt_idx_b69845da",
+    "label": "Create index \"visitorSession_lastSeenAt_idx_b69845da\" on \"visitorSession\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "visitorSession_lastSeenAt_idx_b69845da",
+        "table": "visitorSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"visitorSession_lastSeenAt_idx_b69845da\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"visitorSession_lastSeenAt_idx_b69845da\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"visitorSession_lastSeenAt_idx_b69845da\"",
+        "sql": "CREATE INDEX \"visitorSession_lastSeenAt_idx_b69845da\" ON \"public\".\"visitorSession\" (\"lastSeenAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"visitorSession_lastSeenAt_idx_b69845da\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"visitorSession_lastSeenAt_idx_b69845da\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.visitorSession.visitorSession_startedAt_idx_cac56236",
+    "label": "Create index \"visitorSession_startedAt_idx_cac56236\" on \"visitorSession\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "visitorSession_startedAt_idx_cac56236",
+        "table": "visitorSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"visitorSession_startedAt_idx_cac56236\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"visitorSession_startedAt_idx_cac56236\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"visitorSession_startedAt_idx_cac56236\"",
+        "sql": "CREATE INDEX \"visitorSession_startedAt_idx_cac56236\" ON \"public\".\"visitorSession\" (\"startedAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"visitorSession_startedAt_idx_cac56236\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"visitorSession_startedAt_idx_cac56236\""
+        ]
+      }
+    ]
+  }
+]

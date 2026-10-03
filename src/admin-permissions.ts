@@ -1,4 +1,9 @@
+export const ROLES = {superadmin:"ტექნიკური ადმინისტრატორი",headadmin:"მთავარი ადმინისტრატორი",admin:"ადმინისტრატორი",support:"მხარდაჭერის სპეციალისტი",manager:"მენეჯერი",intern:"სტაჟიორი",moderator:"ადმინისტრატორი"} as const;
+export function roleName(role:string){return ROLES[role as keyof typeof ROLES] || "ადმინისტრატორი";}
+export function canManageTeam(admin:AdminIdentity){return admin.role === "superadmin" || admin.role === "headadmin";}
 export const PERMISSIONS = {
+  replySupport: "მომხმარებლებთან მიმოწერა",
+  manageSupport: "მხარდაჭერის ჩართვა / გამორთვა",
   manageNews: "მთავარი გვერდის სიახლეებისა და სლაიდშოუს მართვა",
   editElections: "არჩევნების შექმნა და რედაქტირება",
   controlElections: "პირდაპირ ჩართვა / შეჩერება",
@@ -14,9 +19,11 @@ export type Permission = keyof typeof PERMISSIONS;
 export const ALL_PERMISSIONS = Object.keys(PERMISSIONS) as Permission[];
 export type AdminIdentity = { id: number; username: string; name: string; role: string; permissions: Permission[]; active: boolean };
 export function allowed(admin: AdminIdentity, permission: Permission) {
-  return admin.role === "superadmin" || (admin.role === "manager" && ["viewVoterDetails", "manageNews", "deleteElections"].includes(permission)) || admin.permissions.includes(permission);
+  if (permission === "manageAdmins") return canManageTeam(admin);
+  return admin.role === "superadmin" || (admin.role === "headadmin" && ["manageSupport", "replySupport", "viewVoterDetails", "manageNews", "deleteElections"].includes(permission)) || admin.permissions.includes(permission);
 }
 export const ACTION_LABELS: Record<string, string> = {
+  "support-toggle":"მხარდაჭერის ჩართვა / გამორთვა", "support-reply":"მომხმარებლისთვის პასუხი", "support-status":"მიმოწერის სტატუსი",
   "save-news": "სიახლის შენახვა", "delete-news": "სიახლის წაშლა", "toggle-news": "სლაიდშოუს ჩართვა / გამორთვა",
   create: "არჩევნების შექმნა", "edit-election": "არჩევნების რედაქტირება",
   start: "არჩევნების ჩართვა", stop: "არჩევნების შეჩერება",
