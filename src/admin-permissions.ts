@@ -14,7 +14,7 @@ export type Permission = keyof typeof PERMISSIONS;
 export const ALL_PERMISSIONS = Object.keys(PERMISSIONS) as Permission[];
 export type AdminIdentity = { id: number; username: string; name: string; role: string; permissions: Permission[]; active: boolean };
 export function allowed(admin: AdminIdentity, permission: Permission) {
-  return admin.role === "superadmin" || (admin.role === "manager" && ["viewVoterDetails", "manageNews"].includes(permission)) || admin.permissions.includes(permission);
+  return admin.role === "superadmin" || (admin.role === "manager" && ["viewVoterDetails", "manageNews", "deleteElections"].includes(permission)) || admin.permissions.includes(permission);
 }
 export const ACTION_LABELS: Record<string, string> = {
   "save-news": "სიახლის შენახვა", "delete-news": "სიახლის წაშლა", "toggle-news": "სლაიდშოუს ჩართვა / გამორთვა",
@@ -25,7 +25,7 @@ export const ACTION_LABELS: Record<string, string> = {
   "update-category": "კატეგორიის რედაქტირება", "delete-category": "კატეგორიის წაშლა",
   "add-candidate": "ექიმის დამატება", "update-candidate": "ექიმის რედაქტირება",
   "delete-candidate": "ექიმის წაშლა", "change-password": "პაროლის შეცვლა", login: "შესვლა", logout: "გასვლა",
-  "save-user": "ადმინის / უფლებების შენახვა", request: "მოთხოვნის გაგზავნა",
+  "reset-admin-password": "ადმინის პაროლის განახლება", "recover-password": "პაროლის SMS-ით აღდგენა", "save-user": "ადმინის / უფლებების შენახვა", request: "მოთხოვნის გაგზავნა",
   approve: "მოთხოვნის დადასტურება", reject: "მოთხოვნის უარყოფა",
 };
 export const ACTION_PERMISSION: Record<string, Permission> = {

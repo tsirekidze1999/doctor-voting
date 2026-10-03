@@ -29,6 +29,7 @@ export async function POST(request: Request) {
       }
       await tx.orm.public.AdminUser.where({ id: user.id }).update({ passwordHash: await hashPassword(newPassword) });
       const endedAt = new Date().toISOString();
+      for (const c of await tx.orm.public.VerificationCode.where({email:"admin-recovery:"+user.username}).where(c=>c.consumedAt.isNull()).all()) await tx.orm.public.VerificationCode.where({id:c.id}).update({consumedAt:endedAt});
       for (const session of await tx.orm.public.AdminSession.where({ userId: user.id }).all()) {
         if (!session.endedAt) await tx.orm.public.AdminSession.where({ id: session.id }).update({ endedAt });
       }

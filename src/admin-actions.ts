@@ -73,8 +73,8 @@ export async function executeAction(tx: Tx, admin: AdminIdentity, data: Body) {
   } else if (action === "unpublish") {
     await tx.orm.public.Election.where({ id }).update({ winnerPublished: false });
   } else if (action === "delete-election") {
-    if (election.isActive) throw new AdminError(409, "წაშლამდე შეაჩერე არჩევნები");
-    if (await tx.orm.public.Vote.where({ electionId: id }).first()) throw new AdminError(409, "ხმების მქონე არჩევნები ინახება არქივისთვის და ვერ წაიშლება");
+    for (const v of await tx.orm.public.Vote.where({ electionId: id }).all()) await tx.orm.public.Vote.where({ id: v.id }).delete();
+    for (const a of await tx.orm.public.AdminApproval.where({ electionId: id, status: "pending" }).all()) await tx.orm.public.AdminApproval.where({ id: a.id }).update({ status: "rejected", reviewerName: admin.name, reviewedAt: new Date().toISOString() });
     for (const c of await tx.orm.public.Candidate.where({ electionId: id }).all()) await tx.orm.public.Candidate.where({ id: c.id }).delete();
     for (const c of await tx.orm.public.Category.where({ electionId: id }).all()) await tx.orm.public.Category.where({ id: c.id }).delete();
     for (const s of await tx.orm.public.Sponsor.where({ electionId: id }).all()) await tx.orm.public.Sponsor.where({ id: s.id }).delete();

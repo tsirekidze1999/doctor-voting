@@ -7,7 +7,7 @@ export default function NewsSlideshow(){
     const controller=new AbortController();
     const load=()=>{if(document.hidden)return;void fetch("/api/news",{cache:"no-store",signal:controller.signal}).then(r=>{if(!r.ok)throw new Error();return r.json();}).then(d=>setSlides(d.slides)).catch(()=>{});};
     load();const timer=setInterval(load,30000);document.addEventListener("visibilitychange",load);
-    const media=matchMedia("(prefers-reduced-motion: reduce)");const change=()=>setReduced(media.matches);media.addEventListener("change",change);
+    const media=matchMedia("(prefers-reduced-motion: reduce)");const change=()=>setReduced(media.matches);change();media.addEventListener("change",change);
     return()=>{controller.abort();clearInterval(timer);document.removeEventListener("visibilitychange",load);media.removeEventListener("change",change);};
   },[]);
   const current=index%Math.max(slides.length,1);

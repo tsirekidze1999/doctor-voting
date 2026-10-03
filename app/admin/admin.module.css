@@ -29,3 +29,41 @@
 .brandLogo{display:block;width:180px;height:auto;background:white;border-radius:10px;padding:10px}.passwordForm{padding:24px;display:grid;gap:18px}.passwordForm p,.passwordForm small{color:#52617b;line-height:1.8}.passwordForm label{display:grid;gap:8px;font-size:14px}.passwordForm input{border:1px solid #cbd5ea;background:white;color:#18224c;border-radius:10px;padding:13px;width:100%}.account{flex-wrap:wrap}.account>button{font-size:12px}.shell .primary,.loginPage .primary{background:#303ba7;border-color:#303ba7}.hero{background:linear-gradient(120deg,#e6f6ff,#e8ebff)}.hero .dayWish{color:#303ba7}.hero .positiveNote{color:#52617b}@media(max-width:600px){.account{gap:10px}.brandLogo{width:150px}}
 
 .newsGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.newsPreview{position:relative;min-height:270px;display:flex;align-items:flex-end;overflow:hidden;background:#172044;border-radius:14px;margin-bottom:18px;color:white}.newsPreview img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.newsPreview>div{position:relative;background:linear-gradient(transparent,#0a1434ee);padding:55px 20px 20px;width:100%;overflow-wrap:anywhere}.newsPreview h3{font-size:22px;margin:8px 0}.newsPreview p{white-space:pre-wrap;font-size:13px;line-height:1.7}.modalBody textarea{display:block;margin-top:9px;width:100%;border:1px solid #d8dae3;border-radius:10px;padding:12px;background:#f9f9fc;color:#262a42;font:inherit;resize:vertical}@media(max-width:1000px){.newsGrid{grid-template-columns:1fr}}
+
+@media(max-width:600px){
+  .sidebar nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible;gap:6px}
+  .sidebar nav button{font-size:12px;min-height:44px;white-space:normal}
+  .sidebar nav svg{display:block;flex-shrink:0}
+  .topbar{padding:14px 17px}
+  .account{width:100%;gap:10px}
+  .account button{margin-left:0;min-height:44px}
+  .account>div{flex:1}
+  .shell input,.shell select,.shell textarea,.modal input,.modal select,.modal textarea,.loginForm input,.passwordForm input{font-size:16px!important}
+  .shell button,.modal button,.loginPage button{min-height:44px}
+  .content,.workspace,.panel,.doctorName{min-width:0}
+  .stats{gap:10px}
+  .stat{padding:16px 13px}
+  .stat strong{font-size:28px}
+  .hero .dayWish{font-size:21px}
+  .actions{gap:8px}
+  .actions button{flex:1 1 130px}
+  .modal{max-height:calc(100dvh - 24px)}
+  .modalHead{padding:16px 20px}
+  .modalHead h2{font-size:17px}
+  .passwordForm{padding:20px}
+  .loginArt h1{font-size:22px}
+  .loginForm{width:calc(100% - 36px)}
+}
+@media(max-width:600px){
+  .sidebar .brandLogo{width:140px}
+  .sidebar{padding:14px 16px}
+  .userCard{gap:8px;padding:20px}
+  .userCard>button{margin-top:0}
+  .sectionHeading>div{min-width:0}
+  .sectionHeading h1{font-size:24px;line-height:1.5}
+  .panel h2,.panel h3,.doctorName{overflow-wrap:anywhere}
+  .electionRow{flex-wrap:wrap}
+  .tableWrap{max-width:100%;overscroll-behavior-x:contain}
+  .modalBody,.passwordForm{overflow-wrap:anywhere}
+  .loginForm>button:not(.primary){width:100%;margin-bottom:18px}
+}

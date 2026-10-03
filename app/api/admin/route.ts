@@ -35,6 +35,20 @@ export async function POST(request: Request) {
     const result = await db.transaction(async tx => {
       await lockAdmin(tx);
       const { admin } = await authenticate(request, tx);
+      if (body.action === "reset-admin-password") {
+        if (admin.role !== "superadmin" || admin.username !== "tornike") throw new AdminError(403, "პაროლის აღდგენა მხოლოდ თორნიკეს შეუძლია");
+        const user = await tx.orm.public.AdminUser.where({ id: positive(body.id) }).first();
+        if (!user) throw new AdminError(404, "ადმინი ვერ მოიძებნა");
+        if (user.id === admin.id) throw new AdminError(400, "საკუთარი პაროლისთვის გამოიყენე პაროლის შეცვლა");
+        if (typeof body.password !== "string" || body.password.length < 12 || body.password.length > 128 || !body.password.trim() || body.password !== body.confirmPassword) throw new AdminError(400, "პაროლები უნდა ემთხვეოდეს და შეიცავდეს 12–128 სიმბოლოს");
+        await tx.orm.public.AdminUser.where({ id: user.id }).update({ passwordHash: await hashPassword(body.password) });
+        for (const s of await tx.orm.public.AdminSession.where({userId:user.id}).where(s=>s.endedAt.isNull()).all()) await tx.orm.public.AdminSession.where({id:s.id}).update({endedAt:new Date().toISOString()});
+        const attempt = await tx.orm.public.AdminLoginAttempt.where({username:user.username}).first();
+        if (attempt) await tx.orm.public.AdminLoginAttempt.where({id:attempt.id}).delete();
+        for (const c of await tx.orm.public.VerificationCode.where({email:"admin-recovery:"+user.username}).where(c=>c.consumedAt.isNull()).all()) await tx.orm.public.VerificationCode.where({id:c.id}).update({consumedAt:new Date().toISOString()});
+        await audit(tx,admin,"reset-admin-password",user.name+" (@"+user.username+"): ყველა სესია გაუქმდა.");
+        return {message:"პაროლი განახლდა. ადმინს შეუძლია ახალი პაროლით შესვლა."};
+      }
       if (body.action === "save-user") {
         if (!allowed(admin, "manageAdmins")) throw new AdminError(403, "ადმინების მართვის უფლება არ გაქვს");
         const existing = body.id ? await tx.orm.public.AdminUser.where({ id: positive(body.id) }).first() : null;
@@ -57,6 +71,7 @@ export async function POST(request: Request) {
         const values = { username, name, permissions: JSON.stringify(permissions), active: body.active };
         if (existing) {
           await tx.orm.public.AdminUser.where({ id: existing.id }).update({ ...values, ...(password ? { passwordHash: await hashPassword(password as string) } : {}) });
+          if (password) for (const c of await tx.orm.public.VerificationCode.where({email:"admin-recovery:"+username}).where(c=>c.consumedAt.isNull()).all()) await tx.orm.public.VerificationCode.where({id:c.id}).update({consumedAt:new Date().toISOString()});
           if (!body.active || password) for (const s of await tx.orm.public.AdminSession.where({ userId: existing.id }).where(s => s.endedAt.isNull()).all()) await tx.orm.public.AdminSession.where({ id: s.id }).update({ endedAt: new Date().toISOString() });
         } else await tx.orm.public.AdminUser.create({ ...values, passwordHash: await hashPassword(password as string), role: "moderator" });
         await audit(tx, admin, "save-user", name + " (" + username + "): " + (body.active ? "აქტიური" : "გამორთული") + "; უფლებები: " + permissions.join(", "));
